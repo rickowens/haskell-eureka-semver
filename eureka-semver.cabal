@@ -14,7 +14,8 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:
-    Network.Eureka.SemVer
+    Network.Eureka.Version
+    Network.Eureka.Version.Cabal
 
   -- other-extensions:
   build-depends:
