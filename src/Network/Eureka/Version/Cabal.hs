@@ -5,11 +5,11 @@ module Network.Eureka.Version.Cabal (
   , showVersion
   ) where
 
-import           Data.Maybe                   (listToMaybe)
-import qualified Data.Version                 as DV (Version, Version (Version),
-                                                     parseVersion, showVersion)
-import           Network.Eureka.Version.Types (Version)
-import           Text.ParserCombinators.ReadP (readP_to_S)
+import Data.Maybe (listToMaybe)
+import qualified Data.Version as DV (Version, Version (Version),
+  parseVersion, showVersion)
+import Network.Eureka.Version.Types (Version)
+import Text.ParserCombinators.ReadP (readP_to_S)
 
 
 fromVersions :: [Int] -> Version
