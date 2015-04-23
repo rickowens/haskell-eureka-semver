@@ -9,9 +9,8 @@ module Network.Eureka.Version.Cabal (
 import Data.Maybe (listToMaybe)
 import qualified Data.Version as DV (Version, Version (Version),
   parseVersion, showVersion)
-import Network.Eureka.Version.Types (Version)
+import Network.Eureka.Version.Types (Version, Predicate)
 import Text.ParserCombinators.ReadP (readP_to_S)
-import Network.Eureka.Version.Types (Predicate)
 
 versionInRangeP :: [Int] -> [Int] -> Predicate
 versionInRangeP lower upper ver =
