@@ -3,6 +3,7 @@ module Network.Eureka.Version.Cabal (
   , fromVersion
   , fromString
   , showVersion
+  , versionInRangeP
   ) where
 
 import Data.Maybe (listToMaybe)
@@ -10,7 +11,12 @@ import qualified Data.Version as DV (Version, Version (Version),
   parseVersion, showVersion)
 import Network.Eureka.Version.Types (Version)
 import Text.ParserCombinators.ReadP (readP_to_S)
+import Network.Eureka.Version.Types (Predicate)
 
+versionInRangeP :: [Int] -> [Int] -> Predicate
+versionInRangeP lower upper ver =
+      ver >= fromVersions lower
+  &&  ver <  fromVersions upper
 
 fromVersions :: [Int] -> Version
 fromVersions vs = fromVersion $ DV.Version vs []
