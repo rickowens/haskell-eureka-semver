@@ -6,10 +6,10 @@ module Network.Eureka.Version (
   , filterInstancesWithPredicate
   ) where
 
-import           Network.Eureka               (InstanceConfig, InstanceInfo,
-                                               addMetadata, lookupMetadata)
+import Network.Eureka (InstanceConfig, InstanceInfo, addMetadata,
+  lookupMetadata)
+import Network.Eureka.Version.Types (Predicate, Version)
 import qualified Network.Eureka.Version.Cabal as VC (fromString, showVersion)
-import           Network.Eureka.Version.Types (Predicate, Version)
 
 metadataVersionKey :: String
 metadataVersionKey = "version"
