@@ -4,12 +4,14 @@ module Network.Eureka.Version (
   , addVersion
   , lookupVersion
   , filterInstancesWithPredicate
+  , versionFilter
   ) where
 
-import           Network.Eureka               (InstanceConfig, InstanceInfo,
-                                               addMetadata, lookupMetadata)
+import Control.Monad (join)
+import Network.Eureka (InstanceConfig, InstanceInfo, addMetadata,
+  lookupMetadata)
+import Network.Eureka.Version.Types (Predicate, Version)
 import qualified Network.Eureka.Version.Cabal as VC (fromString, showVersion)
-import           Network.Eureka.Version.Types (Predicate, Version)
 
 metadataVersionKey :: String
 metadataVersionKey = "version"
@@ -22,6 +24,24 @@ addVersion version = addMetadata (metadataVersionKey, VC.showVersion version)
 
 lookupVersion :: InstanceInfo -> Maybe String
 lookupVersion = lookupMetadata metadataVersionKey
+
+
+{- |
+  Accept a `Predicate` and convert it into a predicate function suitable
+  for filtering `InstanceInfo`s using `Prelude.filter`.
+
+  e.g.
+
+  > let infos :: [InstanceInfo]
+  >     pred :: Predicate
+  > in filter (versionPredicate pred) infos :: [InstanceInfo]
+
+  If an `InstanceInfo` doesn't have a version, or the version is not parsable,
+  then the resulting predicate function returns `False`.
+-}
+versionFilter :: Predicate -> InstanceInfo -> Bool
+versionFilter predicate =
+  maybe False predicate . join . fmap VC.fromString . lookupVersion
 
 
 filterInstancesWithPredicate
