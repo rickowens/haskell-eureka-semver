@@ -34,7 +34,7 @@ lookupVersion = lookupMetadata metadataVersionKey
 
   > let infos :: [InstanceInfo]
   >     pred :: Predicate
-  > in filter (versionPredicate pred) infos :: [InstanceInfo]
+  > in filter (versionFilter pred) infos :: [InstanceInfo]
 
   If an `InstanceInfo` doesn't have a version, or the version is not parsable,
   then the resulting predicate function returns `False`.
