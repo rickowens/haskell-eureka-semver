@@ -1,13 +1,14 @@
 module Network.Eureka.Version (
-    Version
-  , Predicate
-  , addVersion
-  , lookupVersion
-  , filterInstancesWithPredicate
-  , versionFilter'
-  , versionFilter
+    Version,
+    Predicate,
+    addVersion,
+    lookupVersion,
+    filterInstancesWithPredicate,
+    versionFilter',
+    versionFilter
   ) where
 
+import Control.Applicative ((<$>))
 import Control.Monad (join)
 import Network.Eureka (InstanceConfig, InstanceInfo, addMetadata,
   lookupMetadata)
@@ -63,11 +64,14 @@ filterInstancesWithPredicate predicate =
     where
       predicateWithFailures :: InstanceInfo -> Bool
       predicateWithFailures instanceInfo =
-        case lookupVersion instanceInfo of
-          Nothing             -> error $ "instance with the following InstanceInfo does not contain version: " ++ show instanceInfo
-          Just versionString  ->
-            case VC.fromString versionString of
-              Nothing         -> error $ "the version could not be parsed for the instance with the following InstanceInfo: " ++ show instanceInfo
-              Just version    -> predicate version
+        case VC.fromString <$> lookupVersion instanceInfo of
+          Nothing -> error
+            $ "instance with the following InstanceInfo does not "
+            ++ "contain version: " ++ show instanceInfo
+          Just Nothing -> error
+            $ "the version could not be parsed for the instance with "
+            ++ "the following InstanceInfo: " ++ show instanceInfo
+          Just (Just version) ->
+            predicate version
 
 
