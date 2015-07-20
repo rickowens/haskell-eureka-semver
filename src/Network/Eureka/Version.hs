@@ -5,7 +5,8 @@ module Network.Eureka.Version (
     lookupVersion,
     filterInstancesWithPredicate,
     versionFilter',
-    versionFilter
+    versionFilter,
+    range,
   ) where
 
 import Control.Applicative ((<$>))
@@ -53,6 +54,24 @@ versionFilter = versionFilter' False
 versionFilter' :: Bool -> Predicate -> InstanceInfo -> Bool
 versionFilter' defaultResult predicate =
   maybe defaultResult predicate . join . fmap VC.fromString . lookupVersion
+
+
+{- |
+  Build a filter that accepts a range of compatible versions, in the
+  tradition of semver. Matching versions will include versions that
+  are greater than or equal to minVersion, and that are strictly less
+  than the max versions. That is to say, minVersion is inclusive, while
+  maxVersion exclusive.
+-}
+range
+  :: Version
+    -- @minVersion@ - The minimum allowed version, inclusive.
+  -> Version
+    -- @maxVersion@ - The maximum allowed version, exclusive.
+  -> InstanceInfo
+  -> Bool
+range minVersion maxVersion =
+  versionFilter (\version -> version >= minVersion && version < maxVersion)
 
 
 filterInstancesWithPredicate
