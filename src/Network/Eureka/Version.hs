@@ -7,13 +7,18 @@ module Network.Eureka.Version (
     versionFilter',
     versionFilter,
     range,
+    withinRange
   ) where
 
 import Control.Applicative ((<$>))
 import Control.Monad (join)
+import Distribution.Text (parse)
+import Distribution.Compat.ReadP (readP_to_S)
+import Distribution.Version (VersionRange)
 import Network.Eureka (InstanceConfig, InstanceInfo, addMetadata,
   lookupMetadata)
 import Network.Eureka.Version.Types (Predicate, Version)
+import qualified Distribution.Version as V (withinRange)
 import qualified Network.Eureka.Version.Cabal as VC (fromString, showVersion)
 
 metadataVersionKey :: String
@@ -94,3 +99,11 @@ filterInstancesWithPredicate predicate =
             predicate version
 
 
+parseVersionRange :: String -> VersionRange
+parseVersionRange v = fst . last $ readP_to_S parse v
+
+parseVersion :: String -> Version
+parseVersion v = fst . last $ readP_to_S parse v
+
+withinRange :: String -> String -> Bool
+withinRange v vr = V.withinRange (parseVersion v) (parseVersionRange vr)
