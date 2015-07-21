@@ -1,13 +1,15 @@
 module Network.Eureka.Version (
-    Version
-  , Predicate
-  , addVersion
-  , lookupVersion
-  , filterInstancesWithPredicate
-  , versionFilter'
-  , versionFilter
+    Version,
+    Predicate,
+    addVersion,
+    lookupVersion,
+    filterInstancesWithPredicate,
+    versionFilter',
+    versionFilter,
+    range,
   ) where
 
+import Control.Applicative ((<$>))
 import Control.Monad (join)
 import Network.Eureka (InstanceConfig, InstanceInfo, addMetadata,
   lookupMetadata)
@@ -54,6 +56,24 @@ versionFilter' defaultResult predicate =
   maybe defaultResult predicate . join . fmap VC.fromString . lookupVersion
 
 
+{- |
+  Build a filter that accepts a range of compatible versions, in the
+  tradition of semver. Matching versions will include versions that
+  are greater than or equal to minVersion, and that are strictly less
+  than the max versions. That is to say, minVersion is inclusive, while
+  maxVersion exclusive.
+-}
+range
+  :: Version
+    -- @minVersion@ - The minimum allowed version, inclusive.
+  -> Version
+    -- @maxVersion@ - The maximum allowed version, exclusive.
+  -> InstanceInfo
+  -> Bool
+range minVersion maxVersion =
+  versionFilter (\version -> version >= minVersion && version < maxVersion)
+
+
 filterInstancesWithPredicate
   :: Predicate
   -> [InstanceInfo]
@@ -63,11 +83,14 @@ filterInstancesWithPredicate predicate =
     where
       predicateWithFailures :: InstanceInfo -> Bool
       predicateWithFailures instanceInfo =
-        case lookupVersion instanceInfo of
-          Nothing             -> error $ "instance with the following InstanceInfo does not contain version: " ++ show instanceInfo
-          Just versionString  ->
-            case VC.fromString versionString of
-              Nothing         -> error $ "the version could not be parsed for the instance with the following InstanceInfo: " ++ show instanceInfo
-              Just version    -> predicate version
+        case VC.fromString <$> lookupVersion instanceInfo of
+          Nothing -> error
+            $ "instance with the following InstanceInfo does not "
+            ++ "contain version: " ++ show instanceInfo
+          Just Nothing -> error
+            $ "the version could not be parsed for the instance with "
+            ++ "the following InstanceInfo: " ++ show instanceInfo
+          Just (Just version) ->
+            predicate version
 
 
