@@ -12,6 +12,7 @@ module Network.Eureka.Version (
 
 import Control.Applicative ((<$>))
 import Control.Monad (join)
+import Data.Maybe (fromJust)
 import Distribution.Text (parse)
 import Distribution.Compat.ReadP (readP_to_S)
 import Distribution.Version (VersionRange)
@@ -105,5 +106,18 @@ parseVersionRange v = fst . last $ readP_to_S parse v
 parseVersion :: String -> Version
 parseVersion v = fst . last $ readP_to_S parse v
 
-withinRange :: String -> String -> Bool
-withinRange v vr = V.withinRange (parseVersion v) (parseVersionRange vr)
+
+{- |
+  Returns @True@ if @i@ instance info version is included in @vr@ version
+  range.
+
+  Example:
+
+    > import SumAll.Eureka (loadBalancedFiltered)
+    >
+    > app <- loadBalancedFiltered ec "app" (withinRange ">=1.2 && <1.3")
+-}
+withinRange :: String -> InstanceInfo -> Bool
+withinRange vr i = V.withinRange (parseVersion v) (parseVersionRange vr)
+  where
+    v = fromJust . lookupVersion $ i
