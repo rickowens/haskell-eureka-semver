@@ -12,8 +12,7 @@ module Network.Eureka.Version (
 
 import Control.Applicative ((<$>))
 import Control.Monad (join)
-import Distribution.Text (parse)
-import Distribution.Compat.ReadP (readP_to_S)
+import Distribution.Text (simpleParse)
 import Distribution.Version (VersionRange)
 import Network.Eureka (InstanceConfig, InstanceInfo, addMetadata,
   lookupMetadata)
@@ -100,10 +99,12 @@ filterInstancesWithPredicate predicate =
 
 
 parseVersionRange :: String -> VersionRange
-parseVersionRange v = fst . last $ readP_to_S parse v
+parseVersionRange v =
+  maybe (error $ "Can't parse version range " ++ v) id (simpleParse v)
 
 parseVersion :: String -> Version
-parseVersion v = fst . last $ readP_to_S parse v
+parseVersion v =
+  maybe (error $ "Can't parse version " ++ v) id (simpleParse v)
 
 
 {- |
