@@ -7,13 +7,17 @@ module Network.Eureka.Version (
     versionFilter',
     versionFilter,
     range,
+    withinRange
   ) where
 
 import Control.Applicative ((<$>))
 import Control.Monad (join)
+import Distribution.Text (simpleParse)
+import Distribution.Version (VersionRange)
 import Network.Eureka (InstanceConfig, InstanceInfo, addMetadata,
   lookupMetadata)
 import Network.Eureka.Version.Types (Predicate, Version)
+import qualified Distribution.Version as V (withinRange)
 import qualified Network.Eureka.Version.Cabal as VC (fromString, showVersion)
 
 metadataVersionKey :: String
@@ -94,3 +98,30 @@ filterInstancesWithPredicate predicate =
             predicate version
 
 
+parseVersionRange :: String -> VersionRange
+parseVersionRange v =
+  maybe (error $ "Can't parse version range " ++ v) id (simpleParse v)
+
+parseVersion :: String -> Version
+parseVersion v =
+  maybe (error $ "Can't parse version " ++ v) id (simpleParse v)
+
+
+{- |
+  Returns @True@ if @i@ instance info version is included in @vr@ version
+  range.
+
+  Example:
+
+    > import SumAll.Eureka (loadBalancedFiltered)
+    >
+    > app <- loadBalancedFiltered ec "app" (withinRange ">=1.2 && <1.3")
+-}
+withinRange :: String -> InstanceInfo -> Bool
+withinRange vr i = V.withinRange (parseVersion v) (parseVersionRange vr)
+  where
+    v =
+      maybe
+        (error "Eureka application instance does not provide a version")
+        id
+        (lookupVersion i)
