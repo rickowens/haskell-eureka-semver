@@ -12,6 +12,7 @@ module Network.Eureka.Version (
 
 import Control.Applicative ((<$>))
 import Control.Monad (join)
+import Data.Maybe (fromMaybe)
 import Distribution.Text (simpleParse)
 import Distribution.Version (VersionRange)
 import Network.Eureka (InstanceConfig, InstanceInfo, addMetadata,
@@ -100,11 +101,11 @@ filterInstancesWithPredicate predicate =
 
 parseVersionRange :: String -> VersionRange
 parseVersionRange v =
-  maybe (error $ "Can't parse version range " ++ v) id (simpleParse v)
+  fromMaybe (error $ "Can't parse version range " ++ v) (simpleParse v)
 
 parseVersion :: String -> Version
 parseVersion v =
-  maybe (error $ "Can't parse version " ++ v) id (simpleParse v)
+  fromMaybe (error $ "Can't parse version " ++ v) (simpleParse v)
 
 
 {- |
@@ -121,7 +122,6 @@ withinRange :: String -> InstanceInfo -> Bool
 withinRange vr i = V.withinRange (parseVersion v) (parseVersionRange vr)
   where
     v =
-      maybe
+      fromMaybe
         (error "Eureka application instance does not provide a version")
-        id
         (lookupVersion i)
