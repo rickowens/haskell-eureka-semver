@@ -12,7 +12,6 @@ module Network.Eureka.Version (
 
 import Control.Applicative ((<$>))
 import Control.Monad (join)
-import Data.Maybe (fromJust)
 import Distribution.Text (parse)
 import Distribution.Compat.ReadP (readP_to_S)
 import Distribution.Version (VersionRange)
@@ -120,4 +119,8 @@ parseVersion v = fst . last $ readP_to_S parse v
 withinRange :: String -> InstanceInfo -> Bool
 withinRange vr i = V.withinRange (parseVersion v) (parseVersionRange vr)
   where
-    v = fromJust . lookupVersion $ i
+    v =
+      maybe
+        (error "Eureka application instance does not provide a version")
+        id
+        (lookupVersion i)
