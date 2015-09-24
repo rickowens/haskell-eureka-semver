@@ -22,7 +22,7 @@ library
   -- other-extensions:
   build-depends:
     Cabal,
-    eureka-client >= 0.5 && < 0.6,
+    eureka-client >= 0.5 && < 0.7,
     base,
     aeson,
     bytestring,
