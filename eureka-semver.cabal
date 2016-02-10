@@ -1,5 +1,5 @@
 name:                eureka-semver
-version:             0.1.5.1
+version:             0.1.5.2
 synopsis:            a semantic version library for Eureka
 -- description:
 license:             Apache-2.0
